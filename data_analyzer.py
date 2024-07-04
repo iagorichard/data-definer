@@ -17,7 +17,7 @@ def contar_frames_video(arquivo):
     cap.release()
     return frame_count
 
-def obter_quantidade_frames_por_video(diretorio):
+def obter_quantidade_frames_por_video(diretorio, skip_check):
     """ Obtém a quantidade de frames por vídeo e exibe na tela. """
     arquivos_mkv = encontrar_arquivos_mkv(diretorio)
     total_frames = 0
@@ -29,14 +29,27 @@ def obter_quantidade_frames_por_video(diretorio):
         total_frames += frame_count
     
     print(f'TOTAL DE FRAMES: {total_frames}')
+    print(f"Com frame SKIP de {skip_check}: {total_frames/skip_check}")
 
 def main():
-    parser = argparse.ArgumentParser(description='Contagem de frames de vídeos .mkv em um diretório.')
-    parser.add_argument('diretorio', help='Diretório contendo vídeos .mkv')
-    args = parser.parse_args()
+    if len(sys.argv) < 3 or '--diretorio' not in sys.argv:
+        print("Uso: python script.py --diretorio <diretório> [--skip_check <numero>]")
+        sys.exit(1)
     
-    diretorio_videos = args.diretorio
-    obter_quantidade_frames_por_video(diretorio_videos)
+    diretorio_idx = sys.argv.index('--diretorio')
+    diretorio_videos = sys.argv[diretorio_idx + 1]
+    
+    skip_check = False
+    skip_check_idx = sys.argv.index('--skip_check') if '--skip_check' in sys.argv else -1
+    if skip_check_idx != -1:
+        skip_check_value = sys.argv[skip_check_idx + 1]
+        try:
+            skip_check = int(skip_check_value)
+        except ValueError:
+            print("O valor para skip_check deve ser um número inteiro.")
+            sys.exit(1)
+    
+    obter_quantidade_frames_por_video(diretorio_videos, skip_check)
 
 if __name__ == '__main__':
     main()
